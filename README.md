@@ -1,7 +1,7 @@
-binary-gen
+commi-gen
 ==========
 
-The simpliest implementation of genetic algorithm based on binary strings
+The simpliest implementation of genetic algorithm for solving commis voyageur problem
 
 Desingned for educational use in BMSTU.
 
@@ -13,7 +13,7 @@ The project is designed to be built with [Haste](http://haste-lang.org/) compile
 
 Русское описание
 ==============
-Здесь представлена самая минмальная реализация генетического алгоритма на бинарных строках
+Здесь представлена самая минмальная реализация решения задачи коммивояжера
 
 Проект предназначен для образовательных целей в МГТУ им. Н.Э. Баумана.
 
