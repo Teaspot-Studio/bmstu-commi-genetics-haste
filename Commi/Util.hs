@@ -14,6 +14,7 @@ module Commi.Util(
   , binToInt
   , binToDouble
   , debugMsg
+  , listIndex
   ) where
 
 import Prelude hiding (div, id)
@@ -31,6 +32,7 @@ import Haste.HPlay.View hiding (head)
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef
 import Unsafe.Coerce 
+import Debug.Trace 
 
 newtype JQuery = JQuery JSAny
 newtype JPosition = JPosition JSAny
@@ -213,3 +215,6 @@ binToDouble' acc base (x:xs) = binToDouble' newAcc newBase xs
 
 debugMsg :: (MonadIO m, Show a) => a -> m ()
 debugMsg = liftIO . writeLog . show 
+
+listIndex :: {-Show a =>-} [a] -> Int -> a 
+listIndex as i = {-traceShow (as, i) $ -} as !! i 

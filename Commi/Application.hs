@@ -24,7 +24,7 @@ import Genetic.State
 import Genetic.Coroutine
 
 data ApplicationState = AppConfigure Input 
-  | AppCalculate Input PlotState (GeneticState FuncIndivid) (Maybe (Pauseable (GeneticState FuncIndivid)))
+  | AppCalculate Input PlotState (GeneticState CitiesIndivid) (Maybe (Pauseable (GeneticState CitiesIndivid)))
   | AppShow Input PlotState Output
 
 data Route = RouteConfig | RouteCalculate | RouteShow
@@ -85,7 +85,7 @@ routeWidget state = div ! atr "class" "row"
 
     bigBtn v s = cbutton v s <! [atr "class" "btn btn-primary btn-lg"]
 
-geneticWidget :: Input -> GeneticState FuncIndivid -> PlotState -> Maybe (Pauseable (GeneticState FuncIndivid)) -> Widget (GeneticState FuncIndivid, PlotState, Maybe (Pauseable (GeneticState FuncIndivid)))
+geneticWidget :: Input -> GeneticState CitiesIndivid -> PlotState -> Maybe (Pauseable (GeneticState CitiesIndivid)) -> Widget (GeneticState CitiesIndivid, PlotState, Maybe (Pauseable (GeneticState CitiesIndivid)))
 geneticWidget input geneticState plotState coroutine = do 
   --wprint $ show $ geneticCurrentBest geneticState
 
@@ -101,16 +101,19 @@ geneticWidget input geneticState plotState coroutine = do
 
   (dwidth, dheight) <- liftIO $ getDocumentSize
   let maybeSolution = outputSolution <$> extractSolution input geneticState
-  div ! atr "class" "col-md-6" <<< do
-    plotWidget newPlotState [] "Поколение" "Фитнес" ( 0.4 * fromIntegral dwidth, fromIntegral dheight * 0.4) 0 2 []
+  div ! atr "class" "col-md-12" <<< do
+    plotWidget newPlotState [] "Поколение" "Фитнес" ( 0.8 * fromIntegral dwidth, fromIntegral dheight * 0.5) 0 2 []
     wraw $ panel "Текущий результат" $ mconcat [
         labelRow 4 "Лучший фитнес: " $ show $ maybe 0 fst $ geneticCurrentBest geneticState
       , labelRow 4 "Текущий ответ: " $ maybe "" show maybeSolution
+      , labelRow 4 "Стоимость пути: " $ maybe "" (\ind -> show $ cost input ind) $ CitiesIndivid <$> maybeSolution
       ]
-  resultPlot input dwidth dheight maybeSolution
+  --resultPlot input dwidth dheight maybeSolution
 
   corRes <- timeout 200 $ liftIO $ case coroutine of 
-    Nothing -> resume $ solve (inputDigitsCount input) (fitness input) (inputGeneticOptions input) geneticState
+    Nothing -> resume $ solve 
+      (inputIndividLength input, inputCityN input) 
+      (fitness input) (inputGeneticOptions input) geneticState
     Just cr -> resume cr
   (newGeneticState, newCoroutine) <- case corRes of 
     Left (Yield _ paused) -> return (geneticState, Just paused)
@@ -124,9 +127,9 @@ showResultsWidget input plotState output = do
   let maybeSolution = Just $ outputSolution output
 
   div ! atr "class" "row" <<< do
-    div ! atr "class" "col-md-6" <<< resultPlot input dwidth dheight maybeSolution
-    div ! atr "class" "col-md-6" <<< plotWidget plotState [] "Поколение" "Фитнес" 
-      (fromIntegral dwidth * 0.4, fromIntegral dheight * 0.4) 0 2 []
+    -- div ! atr "class" "col-md-6" <<< resultPlot input dwidth dheight maybeSolution
+    div ! atr "class" "col-md-12" <<< plotWidget plotState [] "Поколение" "Фитнес" 
+      (fromIntegral dwidth * 0.8, fromIntegral dheight * 0.8) 0 2 []
   div ! atr "class" "row" <<< do
     wraw $ div ! atr "class" "row-fluid" $ mconcat [
         div ! atr "class" "col-md-6" $ inputInfo
@@ -139,9 +142,8 @@ showResultsWidget input plotState output = do
     opts = inputGeneticOptions input 
 
     inputInfo = panel "Входные данные" $ mconcat [
-        labelRow 6 "Количество битов:" $ show $ inputDigitsCount input
-      , labelRow 6 "Количество битов до запятой:" $ show $ inputDigitsPrevDot input
-      , labelRow 6 "Ожидаемое значение:" $ show $ inputExpected input
+        labelRow 6 "Количество городов:" $ show $ inputCityN input
+      , labelRow 6 "Длина индивидов:" $ show $ inputIndividLength input
       ]
 
     optionsInfo = panel "Настройки эволюции" $ mconcat [
@@ -159,13 +161,5 @@ showResultsWidget input plotState output = do
       ]
 
     otherInfo = panel "Другая информация" $ mconcat [
-        labelRow 6 "Ошибка решения: " $ show $ 1.0 / outputFitness output
+        labelRow 6 "Стоимость пути: " $ show $ cost input (CitiesIndivid $ outputSolution output)
       ]
-
-resultPlot :: Input -> Int -> Int -> Maybe Double -> Widget ()
-resultPlot input dwidth dheight maybeSolution = 
-  div ! atr "class" "col-md-6" <<< plotWidget 
-    (PlotState $ sample (-10) (10) 50 $ userFunction input) 
-    [(sample (-10) (10) 4 $ const $ inputExpected input, RGB 50 250 50)]
-    "Y" "X" ( 0.4 * fromIntegral dwidth, fromIntegral dheight * 0.4) 2 2
-    (maybe [] (\currentSolution -> [(currentSolution, userFunction input currentSolution, RGB 100 100 250)]) maybeSolution)

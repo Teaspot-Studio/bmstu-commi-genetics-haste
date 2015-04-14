@@ -3,6 +3,9 @@
 	[
 		{
 			"path": "."
+		},
+		{
+			"path": "/home/ncrashed/dev/haskell/binary-gen"
 		}
 	]
 }

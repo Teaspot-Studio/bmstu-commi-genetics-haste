@@ -12,6 +12,7 @@ import Data.Maybe
 import Genetic.Options
 import Commi.Task 
 import Commi.Util
+import Commi.Matrix
 
 fieldConfigWidget :: Input -> Widget Input
 fieldConfigWidget input = do
@@ -26,10 +27,10 @@ fieldConfigWidget input = do
 
     editingCntl :: Widget Input
     editingCntl = bsrowFluid <<<
-          (fieldOptionsCnt <|> evolOptionsCnt <|> fitnessCntl) 
+          ({-fieldOptionsCnt <|> -}evolOptionsCnt{- <|> fitnessCntl -}) 
       where
-        fieldOptionsCnt = (bsrow $ label ("Настройки функции: " :: JSString) ! atr "style" "font-size: 20px") ++>
-          (bsrow <<< (digitsCountCnt <|> digitsPreDotCountCnt <|> expectedCnt))
+--        fieldOptionsCnt = (bsrow $ label ("Настройки функции: " :: JSString) ! atr "style" "font-size: 20px") ++>
+--          (bsrow <<< (digitsCountCnt <|> digitsPreDotCountCnt <|> expectedCnt))
 
     makeCounter' :: Int -> JSString -> (Int -> Maybe String) -> Widget Int
     makeCounter' initial labelStr validation = bsrow <<< 
@@ -45,7 +46,7 @@ fieldConfigWidget input = do
     makeCounter initial labelStr errmsg = makeCounter' initial labelStr validate
       where validate r = if r > 0 then Nothing else Just errmsg
 
-    digitsCountCnt :: Widget Input
+{-    digitsCountCnt :: Widget Input
     digitsCountCnt = do
       newVal <- makeCounter (inputDigitsCount input) "Число битов: " "число битов должно быть положительно"
       return $ input {
@@ -83,7 +84,7 @@ fieldConfigWidget input = do
       return $ input {
         inputFitness = newFitness
       }
-
+-}
     evolOptionsCnt :: Widget Input 
     evolOptionsCnt = do
       newOptions <- bsrow <<< (label ("Настройки эволюции:" :: JSString) ! atr "style" "margin-top: 40px; font-size: 20px" 
