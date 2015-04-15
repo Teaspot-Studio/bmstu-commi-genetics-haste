@@ -15,6 +15,7 @@ module Commi.Util(
   , binToDouble
   , debugMsg
   , listIndex
+  , listSet
   ) where
 
 import Prelude hiding (div, id)
@@ -218,3 +219,6 @@ debugMsg = liftIO . writeLog . show
 
 listIndex :: {-Show a =>-} [a] -> Int -> a 
 listIndex as i = {-traceShow (as, i) $ -} as !! i 
+
+listSet :: [a] -> Int -> a -> [a]
+listSet as i a = take i as ++ [a] ++ drop (i+1) as

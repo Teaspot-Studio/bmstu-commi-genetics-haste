@@ -27,7 +27,7 @@ fieldConfigWidget input = do
 
     editingCntl :: Widget Input
     editingCntl = bsrowFluid <<<
-          ({-fieldOptionsCnt <|> -}evolOptionsCnt{- <|> fitnessCntl -}) 
+          (matrixWidget input <|> evolOptionsCnt{- <|> fitnessCntl -}) 
       where
 --        fieldOptionsCnt = (bsrow $ label ("Настройки функции: " :: JSString) ! atr "style" "font-size: 20px") ++>
 --          (bsrow <<< (digitsCountCnt <|> digitsPreDotCountCnt <|> expectedCnt))
