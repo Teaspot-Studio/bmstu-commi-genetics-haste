@@ -18,14 +18,20 @@ matrixWidget input = do
 
   field :: Int -> Int -> Widget [[Int]]
   field i j = do
-    v <- inputInt (Just $ mtx !! i !! j) <! [atr "size" "5"]
-    return $ listSet mtx i (listSet (mtx !! i) j v)
+    let height = length mtx 
+    let width = if height == 0 then 0 else length (mtx !! 0)
+    let oldVal = if i < height && j < width then mtx !! i !! j else 0
+
+    v <- inputInt (Just oldVal) `fire` OnChange <! [atr "size" "5"] 
+
+    let newRow = listSet (if i < height then mtx !! i else []) j 0 v
+    return $ listSet mtx i (replicate n 0) newRow
 
   fieldRow :: Int -> Widget [[Int]]
   fieldRow i = merge $ field i <$> [0 .. n-1] 
 
   rawMatrix = (merge $ (\i -> div ! atr "class" "row" <<< fieldRow i) <$> [0 .. n-1])
-    <** (div ! atr "class" "row" <<< submitButton "Обновить")
+    -- <** (div ! atr "class" "row" <<< submitButton "Обновить")
 
 merge :: [Widget a] -> Widget a 
 merge [] = noWidget

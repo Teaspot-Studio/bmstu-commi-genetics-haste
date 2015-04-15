@@ -220,5 +220,7 @@ debugMsg = liftIO . writeLog . show
 listIndex :: {-Show a =>-} [a] -> Int -> a 
 listIndex as i = {-traceShow (as, i) $ -} as !! i 
 
-listSet :: [a] -> Int -> a -> [a]
-listSet as i a = take i as ++ [a] ++ drop (i+1) as
+listSet :: [a] -> Int -> a -> a -> [a]
+listSet as i defaultA a 
+  | i < length as = take i as ++ [a] ++ drop (i+1) as
+  | otherwise = listSet (as ++ replicate (i + 1 - length as) defaultA) i defaultA a 
